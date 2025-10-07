@@ -4,44 +4,57 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.android.insync.ui.LooperScreen
 import com.android.insync.ui.theme.InSyncTheme
+import com.android.insync.utils.PermissionRationale
+import com.android.insync.viewmodel.LooperViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         setContent {
             InSyncTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                LooperScreenHost()
             }
         }
     }
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
+fun LooperScreenHost(
+    modifier: Modifier = Modifier,
+    viewModel: LooperViewModel = LooperViewModel(),
+) {
+    val permissionState = rememberPermissionState(
+        android.Manifest.permission.RECORD_AUDIO
     )
-}
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    InSyncTheme {
-        Greeting("Android")
+    when {
+        permissionState.status.isGranted -> {
+            LooperScreen(
+                modifier = modifier,
+                viewModel = viewModel
+            )
+        }
+        permissionState.status.shouldShowRationale -> {
+            PermissionRationale(
+                onGrantClicked = { permissionState.launchPermissionRequest() }
+            )
+        }
+        else -> {
+            LaunchedEffect(Unit) {
+                permissionState.launchPermissionRequest()
+            }
+        }
     }
 }
