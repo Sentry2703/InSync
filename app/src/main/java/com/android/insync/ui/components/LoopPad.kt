@@ -1,6 +1,9 @@
 package com.android.insync.ui.components
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,42 +30,43 @@ enum class LoopPadState {
 
 @Composable
 fun LoopPad(
+    modifier: Modifier = Modifier,
     loopPadState: LoopPadState = LoopPadState.Stopped,
     onClick: () -> Unit,
 ) {
-    Box(
-
+    FilledIconButton(
+        modifier = modifier,
+        onClick = onClick,
+        shape = CutCornerShape(4.dp),
     ) {
-        FilledIconButton(
-            onClick = onClick,
-            shape = CutCornerShape(4.dp)
-        ) {
-            when(loopPadState) {
-                LoopPadState.Playing -> {
-                    Icon(
-                        imageVector = Icons.Filled.PlayArrow,
-                        modifier = Modifier.size(30.dp),
-                        contentDescription = "Play",
-                    )
-                }
-                LoopPadState.Stopped -> {
-                    Icon(
-                        painter = painterResource(R.drawable.pause_icon),
-                        modifier = Modifier.size(20.dp),
-                        contentDescription = "Pause",
-                    )
-                }
-                LoopPadState.Recording -> {
-                    Icon(
-                        painter = painterResource(R.drawable.record_icon),
-                        modifier = Modifier.size(20.dp),
-                        contentDescription = "Record",
-                    )
-                }
+        when (loopPadState) {
+            LoopPadState.Playing -> {
+                Icon(
+                    imageVector = Icons.Filled.PlayArrow,
+                    modifier = Modifier.fillMaxSize(),
+                    contentDescription = "Play",
+                )
+            }
+
+            LoopPadState.Stopped -> {
+                Icon(
+                    painter = painterResource(R.drawable.pause_icon),
+                    modifier = Modifier.fillMaxSize(0.5f),
+                    contentDescription = "Pause",
+                )
+            }
+
+            LoopPadState.Recording -> {
+                Icon(
+                    painter = painterResource(R.drawable.record_icon),
+                    modifier = Modifier.fillMaxSize(),
+                    contentDescription = "Record",
+                )
             }
         }
     }
 }
+
 
 @Preview
 @Composable
@@ -71,7 +75,7 @@ fun LoopPadPreview() {
     var padStateIndex: Int by remember { mutableStateOf(0) }
 
     LoopPad(
-        loopPadStates[padStateIndex],
+        loopPadState = loopPadStates[padStateIndex],
         onClick = {
             padStateIndex++
             padStateIndex = (padStateIndex) % loopPadStates.size
